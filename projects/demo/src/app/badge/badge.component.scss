@@ -1,0 +1,39 @@
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  // Roles
+  &[data-type="admin"] {
+    background-color: rgba(163, 113, 247, 0.2);
+    color: var(--accent-purple);
+  }
+
+  &[data-type="editor"] {
+    background-color: rgba(88, 166, 255, 0.2);
+    color: var(--accent-blue);
+  }
+
+  &[data-type="user"] {
+    background-color: rgba(139, 148, 158, 0.2);
+    color: var(--text-muted);
+  }
+
+  // Statuses
+  &[data-type="active"] {
+    background-color: rgba(35, 134, 54, 0.2);
+    color: var(--accent-green);
+  }
+
+  &[data-type="inactive"] {
+    background-color: rgba(248, 81, 73, 0.2);
+    color: var(--accent-red);
+  }
+
+  &[data-type="pending"] {
+    background-color: rgba(255, 166, 87, 0.2);
+    color: #ffa657;
+  }
+}

@@ -1,0 +1,78 @@
+<section class="playground">
+  <h2>Playground</h2>
+
+  <!-- Interactive index.html fragment with color scheme toggle -->
+  <pre class="fake-prism html-fragment"><code><span class="token comment">&lt;!-- index.html --&gt;</span>
+<span class="token tag">&lt;body</span> <span class="token attr-name">class</span>=<span class="token attr-value">"{{ isDarkMode() ? 'dark-mode' : '' }}"</span><span class="token tag">&gt;</span>
+  <span class="token comment">...</span>
+<span class="token tag">&lt;/body&gt;</span></code><button class="color-scheme-toggle" (click)="toggleColorScheme()" [title]="isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">@if (isDarkMode()) {<mat-icon>light_mode</mat-icon>} @else {<mat-icon>dark_mode</mat-icon>}</button></pre>
+
+  <!-- Interactive HTML Code (no Prism - manual highlighting) -->
+  <pre class="fake-prism html-fragment"><code><span class="token comment">&lt;!-- your-component.html --&gt;</span>
+@if (isNativeTable()) {<span class="token tag">&lt;table <span class="token attr-name">mat-table</span>&gt;</span>} @else {<span class="token tag">&lt;mat-table&gt;</span>}
+  <span class="token comment">...</span>
+  @if (isNativeTable()) {<span class="token tag">&lt;tr <span class="token attr-name">mat-row</span>&gt;</span>} @else {<span class="token tag">&lt;mat-row&gt;</span>}
+    <span class="token comment">...</span>
+    @if (isNativeTable()) {<span class="token tag">&lt;td <span class="token attr-name">mat-cell</span>&gt;</span>} @else {<span class="token tag">&lt;mat-cell&gt;</span>}  <span class="token comment">&lt;!-- Toolbar from LEFT --&gt;</span>
+      <span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span> <span class="token attr-name">[disabled]</span>=<span class="token attr-value">&quot;</span><label class="inline-bool"><input type="checkbox" [checked]="leftDisabled()" (change)="leftDisabled.set($any($event.target).checked)"><span class="token keyword">{{ leftDisabled() }}</span></label><span class="token attr-value">&quot;</span><span class="token tag">&gt;</span>
+        <span class="token tag">&lt;button <span class="token attr-name">matIconButton</span>&gt;</span><span class="token comment">...</span><span class="token tag">&lt;/button&gt;</span>
+      <span class="token tag">&lt;/span&gt;</span>
+      <span class="token variable" ngNonBindable>&#123;&#123; user.name &#125;&#125;</span>
+    @if (isNativeTable()) {<span class="token tag">&lt;/td&gt;</span>} @else {<span class="token tag">&lt;/mat-cell&gt;</span>}
+    <span class="token comment">...</span>
+    @if (isNativeTable()) {<span class="token tag">&lt;td <span class="token attr-name">mat-cell</span>&gt;</span>} @else {<span class="token tag">&lt;mat-cell&gt;</span>}  <span class="token comment">&lt;!-- Toolbar from RIGHT --&gt;</span>
+      <span class="token variable" ngNonBindable>&#123;&#123; user.lastUpdated &#125;&#125;</span>
+      <span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span>=<span class="token attr-value">&quot;</span><select class="inline-variant-select" [value]="selectedVariant()" (change)="onVariantChange($any($event.target).value)"><option value="">default</option><option value="filled">filled</option><option value="tonal">tonal</option></select><span class="token attr-value">&quot;</span> <span class="token attr-name">[disabled]</span>=<span class="token attr-value">&quot;</span><label class="inline-bool"><input type="checkbox" [checked]="rightDisabled()" (change)="rightDisabled.set($any($event.target).checked)"><span class="token keyword">{{ rightDisabled() }}</span></label><span class="token attr-value">&quot;</span><span class="token tag">&gt;</span>
+        <span class="token tag">&lt;button <span class="token attr-name">matIconButton</span>&gt;</span><span class="token comment">...</span><span class="token tag">&lt;/button&gt;</span>
+      <span class="token tag">&lt;/span&gt;</span>
+    @if (isNativeTable()) {<span class="token tag">&lt;/td&gt;</span>} @else {<span class="token tag">&lt;/mat-cell&gt;</span>}
+  @if (isNativeTable()) {<span class="token tag">&lt;/tr&gt;</span>} @else {<span class="token tag">&lt;/mat-row&gt;</span>}
+  <span class="token comment">...</span>
+@if (isNativeTable()) {<span class="token tag">&lt;/table&gt;</span>} @else {<span class="token tag">&lt;/mat-table&gt;</span>}</code><button class="table-syntax-toggle" (click)="toggleTableSyntax()" [title]="isNativeTable() ? 'Switch to <mat-table>' : 'Switch to <table mat-table>'">@if (isNativeTable()) {<mat-icon>grid_on</mat-icon>} @else {<mat-icon>table_chart</mat-icon>}</button></pre>
+
+<div class="table-preview-wrapper">
+  @if (isNativeTable()) {
+    @defer (on idle) {
+      <app-table-preview-native
+        [leftDisabled]="leftDisabled()"
+        [rightDisabled]="rightDisabled()"
+        [variant]="selectedVariant()"
+      />
+    } @placeholder (minimum 1000ms) {
+      <div class="table-placeholder">
+        <app-loading-indicator withContainer diameter="64"/>
+      </div>
+    }
+  } @else {
+    @defer (on idle) {
+      <app-table-preview
+        [leftDisabled]="leftDisabled()"
+        [rightDisabled]="rightDisabled()"
+        [variant]="selectedVariant()"
+      />
+    } @placeholder (minimum 1000ms) {
+      <div class="table-placeholder">
+        <app-loading-indicator withContainer diameter="64"/>
+      </div>
+    }
+  }
+</div>
+
+  <!-- Interactive SCSS Code (no Prism - manual highlighting) -->
+  <pre class="fake-prism"><code><span class="token comment">// In styles.scss</span>
+<span class="token keyword">&#64;use</span> <span class="token string">'&#64;angular/material'</span> <span class="token keyword">as</span> mat<span class="token punctuation">;</span>
+<span class="token keyword">&#64;use</span> <span class="token string">'&#64;softwarity/row-actions/row-actions-theme'</span> <span class="token keyword">as</span> row-actions<span class="token punctuation">;</span>
+
+<span class="token selector">html</span> <span class="token punctuation">&#123;</span>
+  <span class="token property">color-scheme</span><span class="token punctuation">:</span> light<span class="token punctuation">;</span>
+  <span class="token keyword">&#64;include</span> <span class="token string">mat.</span><span class="token function">theme</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token property">color</span><span class="token punctuation">:</span> <span class="token string">mat.$</span><select class="inline-palette-select" [value]="selectedPalette()" (change)="onPaletteChange($any($event.target).value)"><option value="">violet</option><option value="red">red</option><option value="green">green</option><option value="blue">blue</option><option value="yellow">yellow</option><option value="cyan">cyan</option><option value="magenta">magenta</option><option value="orange">orange</option><option value="chartreuse">chartreuse</option><option value="spring-green">spring-green</option><option value="azure">azure</option><option value="violet">violet</option><option value="rose">rose</option></select><span class="token string">-palette</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">&#64;include</span> <span class="token string">mat.</span><span class="token function">table-overrides</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token property">row-item-container-height</span><span class="token punctuation">:</span> <select class="inline-height-select" [value]="rowHeight()" (change)="onRowHeightChange(+$any($event.target).value)"><option value="32">32px</option><option value="48">48px</option><option value="52">52px</option><option value="64">64px</option></select><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token selector">&amp; body.dark-mode</span> <span class="token punctuation">&#123;</span>
+    <span class="token property">color-scheme</span><span class="token punctuation">:</span> dark<span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token keyword">&#64;include</span> row-actions.<span class="token function">overrides</span><span class="token punctuation">(</span><span class="token punctuation">(</span>
+<span class="override-line" [class.disabled]="!containerOverride().enabled"><input type="checkbox" [checked]="containerOverride().enabled" (change)="toggleOverride('container')"><span class="token comment" [hidden]="containerOverride().enabled">// </span><span class="token property">container-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><label class="inline-color"><input type="color" [value]="containerOverride().light" (input)="updateOverrideColor('container', 'light', $event)"><span class="color-preview" [style.background]="containerOverride().light"></span><span class="token string">{{ containerOverride().light }}</span></label><span class="token punctuation">,</span> <label class="inline-color"><input type="color" [value]="containerOverride().dark" (input)="updateOverrideColor('container', 'dark', $event)"><span class="color-preview" [style.background]="containerOverride().dark"></span><span class="token string">{{ containerOverride().dark }}</span></label><span class="token punctuation">),</span></span><span class="override-line" [class.disabled]="!filledOverride().enabled"><input type="checkbox" [checked]="filledOverride().enabled" (change)="toggleOverride('filled')"><span class="token comment" [hidden]="filledOverride().enabled">// </span><span class="token property">filled-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><label class="inline-color"><input type="color" [value]="filledOverride().light" (input)="updateOverrideColor('filled', 'light', $event)"><span class="color-preview" [style.background]="filledOverride().light"></span><span class="token string">{{ filledOverride().light }}</span></label><span class="token punctuation">,</span> <label class="inline-color"><input type="color" [value]="filledOverride().dark" (input)="updateOverrideColor('filled', 'dark', $event)"><span class="color-preview" [style.background]="filledOverride().dark"></span><span class="token string">{{ filledOverride().dark }}</span></label><span class="token punctuation">),</span></span><span class="override-line" [class.disabled]="!tonalOverride().enabled"><input type="checkbox" [checked]="tonalOverride().enabled" (change)="toggleOverride('tonal')"><span class="token comment" [hidden]="tonalOverride().enabled">// </span><span class="token property">tonal-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><label class="inline-color"><input type="color" [value]="tonalOverride().light" (input)="updateOverrideColor('tonal', 'light', $event)"><span class="color-preview" [style.background]="tonalOverride().light"></span><span class="token string">{{ tonalOverride().light }}</span></label><span class="token punctuation">,</span> <label class="inline-color"><input type="color" [value]="tonalOverride().dark" (input)="updateOverrideColor('tonal', 'dark', $event)"><span class="color-preview" [style.background]="tonalOverride().dark"></span><span class="token string">{{ tonalOverride().dark }}</span></label><span class="token punctuation">)</span></span>  <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span></code></pre>
+</section>

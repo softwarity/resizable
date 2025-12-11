@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/app",
+    "baseUrl": "./",
+    "types": [],
+    "paths": {
+      "@softwarity/row-actions": ["../../dist"]
+    }
+  },
+  "files": [
+    "src/main.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}

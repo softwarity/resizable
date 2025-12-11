@@ -1,0 +1,150 @@
+:host {
+  background: transparent;
+}
+
+.playground {
+  margin-bottom: 32px;
+}
+
+.table-preview-wrapper {
+  margin: 1rem 0;
+
+  .table-placeholder {
+    height: calc(var(--row-height, 52px) * 8 + 56px); // 8 rows + header
+    background: var(--mat-sys-surface-container);
+    border-radius: 4px;
+  }
+}
+
+// Fake PrismJS interactive code block
+.fake-prism {
+  position: relative;
+
+  // HTML fragment with toggle button in top-right corner
+  &.html-fragment {
+    .color-scheme-toggle,
+    .table-syntax-toggle {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  // Override lines with checkbox and color pickers
+  .override-line {
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+
+    input[type="checkbox"] {
+      margin-right: 4px;
+      cursor: pointer;
+      accent-color: var(--accent-purple);
+    }
+
+    // When disabled (commented out), gray out the whole line
+    &.disabled {
+      .token, .inline-color .token, select {
+        color: #999 !important; // Same as comment color
+      }
+      .color-preview {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  // Inline color picker
+  .inline-color {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    margin: 0 2px;
+
+    input[type="color"] {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .color-preview {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      vertical-align: middle;
+    }
+  }
+
+  // Inline palette select (native select) - green like strings
+  .inline-palette-select {
+    display: inline;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: inherit;
+    color: #7ec699; // Same as .token.string
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed #7ec699;
+    cursor: pointer;
+    padding: 0;
+
+    option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+  }
+
+  // Inline variant select - same green style
+  .inline-variant-select,
+  .inline-height-select {
+    display: inline;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: inherit;
+    color: #7ec699;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed #7ec699;
+    cursor: pointer;
+    padding: 0;
+
+    option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+  }
+
+  // Inline boolean (checkbox + true/false text)
+  .inline-bool {
+    cursor: pointer;
+
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    .token.keyword {
+      border-bottom: 1px dashed #cc99cd;
+    }
+  }
+}

@@ -1,0 +1,149 @@
+@use '@angular/material' as mat;
+@use '@softwarity/row-actions/row-actions-theme' as row-actions;
+@use 'syntax-highlight';
+
+// Material 3 Theme
+html {
+  @include mat.system-classes();
+  color-scheme: light;
+  @include mat.theme((color: mat.$violet-palette));
+
+  &.red {
+    color-scheme: light;
+    @include mat.theme((color: mat.$red-palette));
+  }
+  &.green {
+    color-scheme: light;
+    @include mat.theme((color: mat.$green-palette));
+  }
+  &.blue {
+    color-scheme: light;
+    @include mat.theme((color: mat.$blue-palette));
+  }
+  &.yellow {
+    color-scheme: light;
+    @include mat.theme((color: mat.$yellow-palette));
+  }
+  &.cyan {
+    color-scheme: light;
+    @include mat.theme((color: mat.$cyan-palette));
+  }
+  &.magenta {
+    color-scheme: light;
+    @include mat.theme((color: mat.$magenta-palette));
+  }
+  &.orange {
+    color-scheme: light;
+    @include mat.theme((color: mat.$orange-palette));
+  }
+  &.chartreuse {
+    color-scheme: light;
+    @include mat.theme((color: mat.$chartreuse-palette));
+  }
+  &.spring-green {
+    color-scheme: light;
+    @include mat.theme((color: mat.$spring-green-palette));
+  }
+  &.azure {
+    color-scheme: light;
+    @include mat.theme((color: mat.$azure-palette));
+  }
+  &.violet {
+    color-scheme: light;
+    @include mat.theme((color: mat.$violet-palette));
+  }
+  &.rose {
+    color-scheme: light;
+    @include mat.theme((color: mat.$rose-palette));
+  }
+
+  & body.dark-mode {
+    color-scheme: dark;
+  }
+
+  @include row-actions.overrides((
+    // container-background-color: light-dark(#ff6b6b, #8b0000),
+    // filled-background-color: light-dark(#4ecdc4, #006666),
+    // tonal-background-color: light-dark(#ffe66d, #806600)
+  ));
+
+  @include mat.table-overrides((
+    // row-item-container-height: 32px
+  ));
+}
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  --bg-primary: #161b22;
+  --bg-secondary: #21262d;
+  --text-primary: #e6edf3;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --accent-blue: #58a6ff;
+  --accent-green: #238636;
+  --accent-purple: #a371f7;
+  --accent-red: #f85149;
+  --border-color: #30363d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-blue);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+code {
+  font-family: 'Courier New', Consolas, monospace;
+  background-color: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: var(--accent-blue);
+}
+
+pre {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 0;
+
+  code {
+    background: none;
+    padding: 0;
+    color: var(--text-secondary);
+  }
+
+}
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}

@@ -1,0 +1,27 @@
+@use 'sass:map';
+
+/// Available tokens for loading-indicator theming
+///
+/// @param {Map} $tokens - Map of tokens to override
+///   - background-color: Background color for the container (when withContainer is true)
+///   - shape-color: Color of the animated shape
+///
+/// @example
+///   @include loading-indicator.overrides((
+///     background-color: #f5f5f5,
+///     shape-color: #7d00fa
+///   ));
+@mixin overrides($tokens: ()) {
+  $defaults: (
+    background-color: null,
+    shape-color: null
+  );
+  $merged: map.merge($defaults, $tokens);
+
+  @if map.get($merged, background-color) {
+    --loading-indicator-background-color: #{map.get($merged, background-color)};
+  }
+  @if map.get($merged, shape-color) {
+    --loading-indicator-shape-color: #{map.get($merged, shape-color)};
+  }
+}

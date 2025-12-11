@@ -1,0 +1,48 @@
+// Custom syntax highlighting (inspired by prism-tomorrow theme)
+// Used for code blocks throughout the demo
+
+pre {
+  code {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #ccc;
+  }
+}
+
+// Token colors
+.token {
+  &.comment {
+    color: #999;
+  }
+  &.keyword {
+    color: #cc99cd;
+  }
+  &.string {
+    color: #7ec699;
+  }
+  &.selector {
+    color: #f8c555;
+  }
+  &.property {
+    color: #f08d49;
+  }
+  &.function {
+    color: #6196cc;
+  }
+  &.variable {
+    color: #ccc;
+  }
+  &.punctuation {
+    color: #ccc;
+  }
+  &.tag {
+    color: #e2777a;
+  }
+  &.attr-name {
+    color: #e2777a;
+  }
+  &.attr-value {
+    color: #7ec699;
+  }
+}
