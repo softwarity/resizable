@@ -3,12 +3,5 @@
   "dest": "./dist",
   "lib": {
     "entryFile": "src/public-api.ts"
-  },
-  "assets": [
-    {
-      "input": "src/lib",
-      "glob": "_row-actions-theme.scss",
-      "output": "."
-    }
-  ]
+  }
 }

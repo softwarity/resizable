@@ -1,4 +1,4 @@
-name: Build softwarity/row-actions
+name: Build softwarity/resizable
 run-name: ${{ github.actor }} run build on ${{ github.repository }}
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/row-actions/
+          path: coverage/resizable/
           retention-days: 30
 
 

@@ -55,7 +55,7 @@
         }
       }
     },
-    "row-actions": {
+    "resizable": {
       "projectType": "library",
       "root": "",
       "sourceRoot": "src",

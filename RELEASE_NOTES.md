@@ -21,8 +21,8 @@
 ## 3.0.3
 
 ### Breaking Changes
-- **Directive Pattern** - Changed from `<row-actions>` component to `<span rowActions>` directive
-  - Before: `<row-actions><button>...</button></row-actions>`
+- **Directive Pattern** - Changed from `<resizable>` component to `<span rowActions>` directive
+  - Before: `<resizable><button>...</button></resizable>`
   - After: `<span rowActions><button>...</button></span>`
 
 ### Features
@@ -33,9 +33,9 @@
 
 ### Theming
 - **CSS Custom Properties** - Toolbar colors now use CSS variables with fallback to Material 3 tokens:
-  - `--row-actions-background`
-  - `--row-actions-filled-background`
-  - `--row-actions-tonal-background`
+  - `--resizable-background`
+  - `--resizable-filled-background`
+  - `--resizable-tonal-background`
 - **SCSS Overrides** - The `overrides()` mixin now sets these CSS variables for each variant
 
 ---
@@ -58,8 +58,8 @@
 - **SCSS Mixin** - New `overrides()` mixin for toolbar customization following Angular Material's theming pattern
 - **Usage**:
   ```scss
-  @use '@softwarity/row-actions/row-actions-theme' as row-actions;
-  @include row-actions.overrides((
+  @use '@softwarity/resizable/resizable-theme' as resizable;
+  @include resizable.overrides((
     container-background-color: var(--mat-sys-secondary)
   ));
   ```
@@ -78,7 +78,7 @@
 
 ### Breaking Changes
 - **Removed `color` input** - The `color` input (`primary`, `accent`, `warn`) has been removed in favor of Material 3 theming via SCSS mixin
-- **Theming required** - Must call `@include row-actions.overrides()` in your styles
+- **Theming required** - Must call `@include resizable.overrides()` in your styles
 
 ### Material 3 Support
 - **M3 Design Tokens** - Uses Material 3 toolbar tokens via `mat.toolbar-overrides()`
@@ -101,7 +101,7 @@
 
 ### Testing
 - **Unit tests** - Comprehensive test suite with 21 tests covering:
-  - Row-actions display on hover
+  - resizable display on hover
   - Position detection (left/right)
   - Vertical and horizontal alignment
   - Mouse interactions
@@ -115,7 +115,7 @@
 ## 2.0.3
 
 ### New Features
-- **Live Demo** - Interactive demo page deployed on GitHub Pages at [softwarity.github.io/row-actions](https://softwarity.github.io/row-actions/)
+- **Live Demo** - Interactive demo page deployed on GitHub Pages at [softwarity.github.io/resizable](https://softwarity.github.io/resizable/)
 - Demo includes real-time configuration options (color, disabled state)
 - Dynamic code preview with syntax highlighting
 
@@ -148,4 +148,4 @@
 
 ## Previous Versions
 
-For older releases, see the [commit history](https://github.com/softwarity/row-actions/commits/main).
+For older releases, see the [commit history](https://github.com/softwarity/resizable/commits/main).

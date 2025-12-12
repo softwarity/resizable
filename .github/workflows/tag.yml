@@ -1,4 +1,4 @@
-name: Publish softwarity/row-actions to NPM
+name: Publish softwarity/resizable to NPM
 run-name: ${{ github.actor }} run build on ${{ github.repository }}
 on:
   push:

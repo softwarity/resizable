@@ -4,46 +4,61 @@
   <!-- Installation -->
   <article class="doc-section">
     <h3>Installation</h3>
-    <pre><code><span class="token function">npm</span> install &#64;softwarity/row-actions</code></pre>
+    <pre><code><span class="token function">npm</span> <span class="token keyword">install</span> <span class="token string">&#64;softwarity/resizable</span></code></pre>
   </article>
 
   <!-- Usage -->
   <article class="doc-section">
-    <h3>Usage</h3>
-    <pre><code><span class="token tag">&lt;ng-container</span> <span class="token attr-name">matColumnDef</span>=<span class="token attr-value">"actions"</span><span class="token tag">&gt;</span>
-  <span class="token tag">&lt;mat-header-cell</span> <span class="token attr-name">*matHeaderCellDef</span><span class="token tag">&gt;</span>Actions<span class="token tag">&lt;/mat-header-cell&gt;</span>
-  <span class="token tag">&lt;mat-cell</span> <span class="token attr-name">*matCellDef</span>=<span class="token attr-value">"let element"</span><span class="token tag">&gt;</span>
-    <span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span><span class="token tag">&gt;</span>
-      <span class="token tag">&lt;button</span> <span class="token attr-name">matIconButton</span> <span class="token attr-name">(click)</span>=<span class="token attr-value">"edit(element)"</span><span class="token tag">&gt;</span>
-        <span class="token tag">&lt;mat-icon&gt;</span>edit<span class="token tag">&lt;/mat-icon&gt;</span>
-      <span class="token tag">&lt;/button&gt;</span>
-      <span class="token tag">&lt;button</span> <span class="token attr-name">matIconButton</span> <span class="token attr-name">(click)</span>=<span class="token attr-value">"delete(element)"</span><span class="token tag">&gt;</span>
-        <span class="token tag">&lt;mat-icon&gt;</span>delete<span class="token tag">&lt;/mat-icon&gt;</span>
-      <span class="token tag">&lt;/button&gt;</span>
-    <span class="token tag">&lt;/span&gt;</span>
-  <span class="token tag">&lt;/mat-cell&gt;</span>
-<span class="token tag">&lt;/ng-container&gt;</span></code></pre>
+    <h3>Basic Usage</h3>
+    <p>The library provides native Web Components that work with any framework or vanilla JavaScript.</p>
+    <pre><code><span class="token comment">&lt;!-- Simple horizontal split --&gt;</span>
+<span class="token tag">&lt;resizable-split</span> <span class="token attr-name">direction</span>=<span class="token attr-value">"horizontal"</span><span class="token tag">&gt;</span>
+  <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"1"</span><span class="token tag">&gt;</span>Left Panel<span class="token tag">&lt;/resizable-panel&gt;</span>
+  <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"2"</span><span class="token tag">&gt;</span>Right Panel<span class="token tag">&lt;/resizable-panel&gt;</span>
+<span class="token tag">&lt;/resizable-split&gt;</span></code></pre>
 
-    <h4>Variants</h4>
-    <p>The directive supports 3 visual variants:</p>
-    <pre><code><span class="token comment">&lt;!-- Default variant (surface-container) --&gt;</span>
-<span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span><span class="token tag">&gt;</span>...<span class="token tag">&lt;/span&gt;</span>
+    <h4>Nested Layouts</h4>
+    <p>Create complex layouts by nesting splits:</p>
+    <pre><code><span class="token tag">&lt;resizable-split</span> <span class="token attr-name">direction</span>=<span class="token attr-value">"vertical"</span><span class="token tag">&gt;</span>
+  <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"1"</span><span class="token tag">&gt;</span>
+    <span class="token tag">&lt;resizable-split</span> <span class="token attr-name">direction</span>=<span class="token attr-value">"horizontal"</span><span class="token tag">&gt;</span>
+      <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"1"</span><span class="token tag">&gt;</span>Panel A<span class="token tag">&lt;/resizable-panel&gt;</span>
+      <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"1"</span><span class="token tag">&gt;</span>Panel B<span class="token tag">&lt;/resizable-panel&gt;</span>
+    <span class="token tag">&lt;/resizable-split&gt;</span>
+  <span class="token tag">&lt;/resizable-panel&gt;</span>
+  <span class="token tag">&lt;resizable-panel</span> <span class="token attr-name">flex</span>=<span class="token attr-value">"1"</span><span class="token tag">&gt;</span>Bottom Panel<span class="token tag">&lt;/resizable-panel&gt;</span>
+<span class="token tag">&lt;/resizable-split&gt;</span></code></pre>
+  </article>
 
-<span class="token comment">&lt;!-- Filled variant (primary-container) --&gt;</span>
-<span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span>=<span class="token attr-value">"filled"</span><span class="token tag">&gt;</span>...<span class="token tag">&lt;/span&gt;</span>
+  <!-- Angular Usage -->
+  <article class="doc-section">
+    <h3>Angular Integration</h3>
+    <p>For Angular projects, add <code>CUSTOM_ELEMENTS_SCHEMA</code> to your component:</p>
+    <pre><code><span class="token keyword">import</span> &#123; Component, CUSTOM_ELEMENTS_SCHEMA &#125; <span class="token keyword">from</span> <span class="token string">'&#64;angular/core'</span>;
+<span class="token keyword">import</span> <span class="token string">'&#64;softwarity/resizable'</span>;
 
-<span class="token comment">&lt;!-- Tonal variant (secondary-container) --&gt;</span>
-<span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span>=<span class="token attr-value">"tonal"</span><span class="token tag">&gt;</span>...<span class="token tag">&lt;/span&gt;</span></code></pre>
+<span class="token decorator">&#64;Component</span>(&#123;
+  <span class="token property">selector</span>: <span class="token string">'my-component'</span>,
+  <span class="token property">schemas</span>: &#91;CUSTOM_ELEMENTS_SCHEMA&#93;,
+  <span class="token property">template</span>: <span class="token string">`
+    &lt;resizable-split direction="horizontal"&gt;
+      ...
+    &lt;/resizable-split&gt;
+  `</span>
+&#125;)
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token function">MyComponent</span> &#123;&#125;</code></pre>
   </article>
 
   <!-- API -->
   <article class="doc-section">
-    <h3>API</h3>
+    <h3>API Reference</h3>
+
+    <h4>&lt;resizable-split&gt;</h4>
     <div class="api-table-wrapper">
       <table class="api-table">
         <thead>
           <tr>
-            <th>Input</th>
+            <th>Attribute</th>
             <th>Type</th>
             <th>Default</th>
             <th>Description</th>
@@ -51,109 +66,109 @@
         </thead>
         <tbody>
           <tr>
-            <td><code>disabled</code></td>
-            <td><code>boolean</code></td>
-            <td><code>false</code></td>
-            <td>Disables the component (hides it completely)</td>
+            <td><code>direction</code></td>
+            <td><code>'horizontal' | 'vertical'</code></td>
+            <td><code>'horizontal'</code></td>
+            <td>Direction of the split layout</td>
+          </tr>
+          <tr>
+            <td><code>min-panel-size</code></td>
+            <td><code>number</code></td>
+            <td><code>50</code></td>
+            <td>Minimum panel size in pixels</td>
           </tr>
         </tbody>
       </table>
     </div>
-  </article>
 
-  <!-- Theming -->
-  <article class="doc-section">
-    <h3>Theming (Material 3)</h3>
-    <p>The component provides a SCSS mixin to customize the toolbar colors. This approach follows Angular Material's theming pattern.</p>
-    <p>In your application's <code>styles.scss</code>, import the theme file and call the <code>overrides</code> mixin:</p>
-    <pre><code><span class="token keyword">&#64;use</span> <span class="token string">'&#64;angular/material'</span> <span class="token keyword">as</span> mat<span class="token punctuation">;</span>
-<span class="token keyword">&#64;use</span> <span class="token string">'&#64;softwarity/row-actions/row-actions-theme'</span> <span class="token keyword">as</span> row-actions<span class="token punctuation">;</span>
-
-<span class="token comment">// Your Material 3 theme</span>
-<span class="token selector">html</span> <span class="token punctuation">&#123;</span>
-  <span class="token keyword">&#64;include</span> mat.<span class="token function">theme</span><span class="token punctuation">((</span>
-    <span class="token property">color</span><span class="token punctuation">:</span> <span class="token punctuation">(</span>
-      <span class="token property">primary</span><span class="token punctuation">:</span> mat.<span class="token variable">$violet-palette</span><span class="token punctuation">,</span>
-      <span class="token property">tertiary</span><span class="token punctuation">:</span> mat.<span class="token variable">$yellow-palette</span>
-    <span class="token punctuation">)</span><span class="token punctuation">,</span>
-    <span class="token property">typography</span><span class="token punctuation">:</span> Roboto<span class="token punctuation">,</span>
-    <span class="token property">density</span><span class="token punctuation">:</span> <span class="token number">0</span>
-  <span class="token punctuation">))</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span>
-
-<span class="token comment">// Optional: customize row actions colors</span>
-<span class="token comment">// &#64;include row-actions.overrides();</span></code></pre>
-
-    <h4>Customization</h4>
-    <p>The <code>overrides</code> mixin accepts a map of tokens to customize the toolbar appearance for each variant:</p>
+    <h4>&lt;resizable-panel&gt;</h4>
     <div class="api-table-wrapper">
       <table class="api-table">
         <thead>
           <tr>
-            <th>Token</th>
+            <th>Attribute</th>
+            <th>Type</th>
             <th>Default</th>
             <th>Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><code>container-background-color</code></td>
-            <td><code>var(--mat-sys-surface-container)</code></td>
-            <td>Background for default variant</td>
+            <td><code>flex</code></td>
+            <td><code>number</code></td>
+            <td><code>1</code></td>
+            <td>Initial flex ratio for the panel</td>
           </tr>
           <tr>
-            <td><code>filled-background-color</code></td>
-            <td><code>var(--mat-sys-primary-container)</code></td>
-            <td>Background for filled variant</td>
+            <td><code>min</code></td>
+            <td><code>string</code></td>
+            <td><code>null</code></td>
+            <td>Minimum size (e.g., "100px", "20%")</td>
           </tr>
           <tr>
-            <td><code>tonal-background-color</code></td>
-            <td><code>var(--mat-sys-secondary-container)</code></td>
-            <td>Background for tonal variant</td>
+            <td><code>max</code></td>
+            <td><code>string</code></td>
+            <td><code>null</code></td>
+            <td>Maximum size (e.g., "500px", "80%")</td>
+          </tr>
+          <tr>
+            <td><code>panel-id</code></td>
+            <td><code>string</code></td>
+            <td><code>auto-generated</code></td>
+            <td>Unique identifier for save/load</td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <h4>Examples</h4>
-    <pre><code><span class="token comment">// Customize all variants with light/dark support</span>
-<span class="token keyword">&#64;include</span> row-actions.<span class="token function">overrides</span><span class="token punctuation">((</span>
-  <span class="token property">container-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><span class="token string">#e8def8</span><span class="token punctuation">,</span> <span class="token string">#4a4458</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
-  <span class="token property">filled-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><span class="token string">#d0bcff</span><span class="token punctuation">,</span> <span class="token string">#381e72</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
-  <span class="token property">tonal-background-color</span><span class="token punctuation">:</span> <span class="token function">light-dark</span><span class="token punctuation">(</span><span class="token string">#e8def8</span><span class="token punctuation">,</span> <span class="token string">#4a4458</span><span class="token punctuation">)</span>
-<span class="token punctuation">))</span><span class="token punctuation">;</span>
-
-<span class="token comment">// Use Material 3 system colors</span>
-<span class="token keyword">&#64;include</span> row-actions.<span class="token function">overrides</span><span class="token punctuation">((</span>
-  <span class="token property">container-background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span><span class="token variable">--mat-sys-tertiary-container</span><span class="token punctuation">)</span>
-<span class="token punctuation">))</span><span class="token punctuation">;</span>
-
-<span class="token comment">// Custom color for default variant only</span>
-<span class="token keyword">&#64;include</span> row-actions.<span class="token function">overrides</span><span class="token punctuation">((</span>
-  <span class="token property">container-background-color</span><span class="token punctuation">:</span> <span class="token string">#1976d2</span>
-<span class="token punctuation">))</span><span class="token punctuation">;</span></code></pre>
-    <p>To customize the icon buttons, use Angular Material's <code>matIconButton</code> overrides directly.</p>
   </article>
 
-  <!-- Position Behavior -->
+  <!-- Features -->
   <article class="doc-section">
-    <h3>Position Behavior</h3>
-    <p>The toolbar automatically detects its position within the cell and animates accordingly:</p>
+    <h3>Features</h3>
     <ul class="feature-list">
-      <li><strong>First child</strong> in cell → Toolbar appears from the <strong>left</strong></li>
-      <li><strong>Last child</strong> in cell → Toolbar appears from the <strong>right</strong></li>
+      <li><strong>Glued Handles:</strong> Handles at intersections move together automatically. Hold <code>Ctrl</code> while dragging to resize independently.</li>
+      <li><strong>iFrame Support:</strong> An overlay prevents losing mouse events when dragging over iframes.</li>
+      <li><strong>Dark Mode:</strong> Uses CSS <code>light-dark()</code> for automatic theme adaptation.</li>
+      <li><strong>Save/Load:</strong> Use <code>ResizableLayoutRegistry</code> to save and restore layouts.</li>
+      <li><strong>Touch Support:</strong> Full touch support for mobile devices.</li>
     </ul>
-    <p>You can place <code>&lt;span rowActions&gt;</code> in any cell of your table, not just a dedicated "actions" column. This allows you to add contextual actions to specific data columns.</p>
-    <pre ngNonBindable><code><span class="token comment">&lt;!-- Toolbar from LEFT --&gt;</span>
-<span class="token tag">&lt;mat-cell</span> <span class="token attr-name">*matCellDef</span>=<span class="token attr-value">"let element"</span><span class="token tag">&gt;</span>
-  <span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span><span class="token tag">&gt;</span>...<span class="token tag">&lt;/span&gt;</span>
-  <span class="token variable">{{ element.name }}</span>
-<span class="token tag">&lt;/mat-cell&gt;</span>
+  </article>
 
-<span class="token comment">&lt;!-- Toolbar from RIGHT --&gt;</span>
-<span class="token tag">&lt;mat-cell</span> <span class="token attr-name">*matCellDef</span>=<span class="token attr-value">"let element"</span><span class="token tag">&gt;</span>
-  <span class="token variable">{{ element.name }}</span>
-  <span class="token tag">&lt;span</span> <span class="token attr-name">rowActions</span><span class="token tag">&gt;</span>...<span class="token tag">&lt;/span&gt;</span>
-<span class="token tag">&lt;/mat-cell&gt;</span></code></pre>
+  <!-- Save/Load API -->
+  <article class="doc-section">
+    <h3>Save/Load Configuration</h3>
+    <pre><code><span class="token keyword">import</span> &#123; ResizableLayoutRegistry &#125; <span class="token keyword">from</span> <span class="token string">'&#64;softwarity/resizable'</span>;
+
+<span class="token comment">// Save current layout</span>
+<span class="token keyword">const</span> config = ResizableLayoutRegistry.<span class="token function">getLayoutConfig</span>();
+localStorage.<span class="token function">setItem</span>(<span class="token string">'my-layout'</span>, JSON.<span class="token function">stringify</span>(config));
+
+<span class="token comment">// Restore layout</span>
+<span class="token keyword">const</span> saved = localStorage.<span class="token function">getItem</span>(<span class="token string">'my-layout'</span>);
+<span class="token keyword">if</span> (saved) &#123;
+  ResizableLayoutRegistry.<span class="token function">applyLayoutConfig</span>(JSON.<span class="token function">parse</span>(saved));
+&#125;
+
+<span class="token comment">// Reset to initial state</span>
+ResizableLayoutRegistry.<span class="token function">resetLayout</span>();</code></pre>
+  </article>
+
+  <!-- Theming -->
+  <article class="doc-section">
+    <h3>Theming</h3>
+    <p>The component uses CSS custom properties with <code>light-dark()</code> for theme support:</p>
+    <pre><code><span class="token comment">/* Customize handle colors */</span>
+<span class="token selector">resizable-handle</span> &#123;
+  <span class="token property">--handle-color</span>: <span class="token function">light-dark</span>(#cccccc, #555555);
+  <span class="token property">--handle-hover-color</span>: <span class="token function">light-dark</span>(#888888, #888888);
+  <span class="token property">--handle-active-color</span>: <span class="token function">light-dark</span>(#666666, #aaaaaa);
+  <span class="token property">--handle-glued-color</span>: <span class="token function">light-dark</span>(#4a90d9, #5ba0e9);
+&#125;</code></pre>
+    <p>For frameworks using classes for dark mode (Tailwind, Bootstrap), sync <code>color-scheme</code>:</p>
+    <pre><code><span class="token comment">/* Tailwind */</span>
+<span class="token selector">html.dark</span> &#123; <span class="token property">color-scheme</span>: dark; &#125;
+
+<span class="token comment">/* Bootstrap */</span>
+<span class="token selector">&#91;data-bs-theme="dark"&#93;</span> &#123; <span class="token property">color-scheme</span>: dark; &#125;</code></pre>
   </article>
 </section>

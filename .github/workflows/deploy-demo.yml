@@ -34,16 +34,16 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Remove local row-actions reference and install from npm
+      - name: Remove local resizable reference and install from npm
         run: |
-          npm remove @softwarity/row-actions
-          npm i @softwarity/row-actions
+          npm remove @softwarity/resizable
+          npm i @softwarity/resizable
 
       - name: Remove path mapping for demo
         run: sed -i '/"paths"/,/}/d' projects/demo/tsconfig.app.json
 
       - name: Build demo for GitHub Pages
-        run: npm run build:demo -- --base-href /row-actions/
+        run: npm run build:demo -- --base-href /resizable/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

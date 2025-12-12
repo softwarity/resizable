@@ -1,154 +1,265 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, effect, ElementRef, viewChild, AfterViewInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { TablePreviewComponent } from '../table-preview/table-preview.component';
-import { TablePreviewNativeComponent } from '../table-preview-native/table-preview-native.component';
-import { LoadingIndicatorComponent } from '../loading-indicator/loading-indicator.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import {
+  ResizableLayoutRegistry,
+  LayoutConfig,
+  GridConfig,
+  createSingleCellGrid,
+  createGrid,
+  createDashboardGrid,
+} from '@softwarity/resizable';
 
-const PALETTES = [
-  'red', 'green', 'blue', 'yellow', 'cyan', 'magenta',
-  'orange', 'chartreuse', 'spring-green', 'azure', 'violet', 'rose'
-] as const;
+// Import to register custom elements
+import '@softwarity/resizable';
+
+interface SavedConfig {
+  name: string;
+  config: LayoutConfig;
+}
+
+interface SavedGridConfig {
+  name: string;
+  config: GridConfig;
+}
 
 @Component({
+  selector: 'app-playground',
+  standalone: true,
   imports: [
+    FormsModule,
     MatIconModule,
-    TablePreviewComponent,
-    TablePreviewNativeComponent,
-    LoadingIndicatorComponent,
+    MatButtonModule,
+    MatSliderModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatTooltipModule,
+    MatTabsModule,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './playground.component.html',
   styleUrl: './playground.component.scss'
 })
-export class PlaygroundComponent {
-  protected leftDisabled = signal(false);
-  protected rightDisabled = signal(false);
-  protected selectedVariant = signal<'' | 'filled' | 'tonal'>('');
-
+export class PlaygroundComponent implements AfterViewInit {
   protected isDarkMode = signal(document.body.classList.contains('dark-mode'));
+  protected savedConfigs = signal<SavedConfig[]>([]);
+  protected selectedConfigName = signal<string>('');
+  protected configNameInput = signal<string>('');
 
-  // Table syntax: 'component' = <mat-table>, 'native' = <table mat-table>
-  protected isNativeTable = signal(false);
+  // Grid mode
+  protected editMode = signal(false);
+  protected savedGridConfigs = signal<SavedGridConfig[]>([]);
+  protected selectedGridConfigName = signal<string>('');
+  protected gridConfigNameInput = signal<string>('');
 
-  // Row height
-  protected rowHeight = signal<32 | 48 | 52 | 64>(52);
-
-  // Palette selection
-  protected palettes = PALETTES;
-  protected selectedPalette = signal<string>('');
-
-  // Override configurations for each variant (distinct colors, unchecked by default)
-  protected containerOverride = signal({ enabled: false, light: '#ff6b6b', dark: '#8b0000' }); // Red tones
-  protected filledOverride = signal({ enabled: false, light: '#4ecdc4', dark: '#006666' });    // Cyan tones
-  protected tonalOverride = signal({ enabled: false, light: '#ffe66d', dark: '#806600' });     // Yellow tones
+  private readonly previewContainer = viewChild<ElementRef<HTMLElement>>('previewContainer');
+  private readonly gridContainer = viewChild<ElementRef<HTMLElement>>('gridContainer');
 
   constructor() {
-    // React to config changes to update custom background
-    effect(() => {
-      this.containerOverride();
-      this.filledOverride();
-      this.tonalOverride();
-      this.updateCustomBackground();
-    });
+    // Load saved configs from localStorage
+    this.loadSavedConfigs();
+    this.loadSavedGridConfigs();
 
-    // React to row height changes
+    // React to dark mode changes
     effect(() => {
-      this.updateRowHeight(this.rowHeight());
+      document.body.classList.toggle('dark-mode', this.isDarkMode());
     });
   }
 
-  private styleElement: HTMLStyleElement | null = null;
-
-  updateCustomBackground(): void {
-    const container = this.containerOverride();
-    const filled = this.filledOverride();
-    const tonal = this.tonalOverride();
-
-    const hasAnyOverride = container.enabled || filled.enabled || tonal.enabled;
-
-    if (hasAnyOverride) {
-      if (!this.styleElement) {
-        this.styleElement = document.createElement('style');
-        document.head.appendChild(this.styleElement);
+  ngAfterViewInit(): void {
+    // Initialize grid with default 2x2 using createGrid
+    setTimeout(() => {
+      const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+      if (gridEl) {
+        (gridEl as any).loadConfig(createGrid({ rows: 2, cols: 2 }));
       }
-      const lines: string[] = [];
-      if (container.enabled) {
-        lines.push(`--row-actions-container-background-color: light-dark(${container.light}, ${container.dark});`);
-      }
-      if (filled.enabled) {
-        lines.push(`--row-actions-filled-background-color: light-dark(${filled.light}, ${filled.dark});`);
-      }
-      if (tonal.enabled) {
-        lines.push(`--row-actions-tonal-background-color: light-dark(${tonal.light}, ${tonal.dark});`);
-      }
-      this.styleElement.textContent = `:root { ${lines.join(' ')} }`;
-    } else if (this.styleElement) {
-      this.styleElement.remove();
-      this.styleElement = null;
-    }
-  }
-
-  toggleOverride(variant: 'container' | 'filled' | 'tonal'): void {
-    const signalMap = {
-      container: this.containerOverride,
-      filled: this.filledOverride,
-      tonal: this.tonalOverride
-    };
-    signalMap[variant].update(v => ({ ...v, enabled: !v.enabled }));
-  }
-
-  updateOverrideColor(variant: 'container' | 'filled' | 'tonal', mode: 'light' | 'dark', event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    const signalMap = {
-      container: this.containerOverride,
-      filled: this.filledOverride,
-      tonal: this.tonalOverride
-    };
-    signalMap[variant].update(v => ({ ...v, [mode]: value }));
+    });
   }
 
   toggleColorScheme(): void {
     this.isDarkMode.update(dark => !dark);
-    document.body.classList.toggle('dark-mode', this.isDarkMode());
   }
 
-  onPaletteChange(palette: string): void {
-    const html = document.documentElement;
-    // Remove all palette classes
-    PALETTES.forEach(p => html.classList.remove(p));
-    // Add selected palette class
-    if (palette) {
-      html.classList.add(palette);
+  toggleEditMode(): void {
+    this.editMode.update(mode => !mode);
+  }
+
+  // ============ Split-based layout (legacy) ============
+
+  saveCurrentConfig(): void {
+    const name = this.configNameInput().trim();
+    if (!name) return;
+
+    const config = ResizableLayoutRegistry.getLayoutConfig();
+    const configs = this.savedConfigs();
+
+    const existingIndex = configs.findIndex(c => c.name === name);
+    if (existingIndex >= 0) {
+      configs[existingIndex] = { name, config };
+    } else {
+      configs.push({ name, config });
     }
-    this.selectedPalette.set(palette);
+
+    this.savedConfigs.set([...configs]);
+    this.persistConfigs();
+    this.configNameInput.set('');
   }
 
-  onVariantChange(variant: '' | 'filled' | 'tonal'): void {
-    this.selectedVariant.set(variant);
-  }
-
-  toggleTableSyntax(): void {
-    this.isNativeTable.update(native => !native);
-  }
-
-  private rowHeightStyleElement: HTMLStyleElement | null = null;
-
-  private updateRowHeight(height: number): void {
-    if (!this.rowHeightStyleElement) {
-      this.rowHeightStyleElement = document.createElement('style');
-      document.head.appendChild(this.rowHeightStyleElement);
+  loadConfig(name: string): void {
+    const configs = this.savedConfigs();
+    const saved = configs.find(c => c.name === name);
+    if (saved) {
+      ResizableLayoutRegistry.applyLayoutConfig(saved.config);
+      this.selectedConfigName.set(name);
     }
-    this.rowHeightStyleElement.textContent = `
-      .table-preview-wrapper {
-        --row-height: ${height}px;
-      }
-      .table-preview-wrapper mat-row,
-      .table-preview-wrapper tr[mat-row] {
-        --mat-table-row-item-container-height: var(--row-height);
-      }
-    `;
   }
 
-  onRowHeightChange(height: number): void {
-    this.rowHeight.set(height as 32 | 48 | 52 | 64);
+  deleteConfig(name: string): void {
+    const configs = this.savedConfigs().filter(c => c.name !== name);
+    this.savedConfigs.set(configs);
+    this.persistConfigs();
+    if (this.selectedConfigName() === name) {
+      this.selectedConfigName.set('');
+    }
+  }
+
+  resetLayout(): void {
+    ResizableLayoutRegistry.resetLayout();
+    this.selectedConfigName.set('');
+  }
+
+  private loadSavedConfigs(): void {
+    try {
+      const saved = localStorage.getItem('resizable-demo-configs');
+      if (saved) {
+        this.savedConfigs.set(JSON.parse(saved));
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  private persistConfigs(): void {
+    try {
+      localStorage.setItem('resizable-demo-configs', JSON.stringify(this.savedConfigs()));
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  onConfigChange(event: CustomEvent): void {
+    console.log('Layout changed:', event.detail);
+  }
+
+  // ============ Grid-based layout (new) ============
+
+  resetGrid(): void {
+    const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+    if (gridEl) {
+      (gridEl as any).loadConfig(createGrid({ rows: 2, cols: 2 }));
+    }
+    this.selectedGridConfigName.set('');
+  }
+
+  resetGridToSingle(): void {
+    const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+    if (gridEl) {
+      (gridEl as any).loadConfig(createSingleCellGrid());
+    }
+    this.selectedGridConfigName.set('');
+  }
+
+  createGrid3x3(): void {
+    const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+    if (gridEl) {
+      (gridEl as any).loadConfig(createGrid({ rows: 3, cols: 3 }));
+    }
+    this.selectedGridConfigName.set('');
+  }
+
+  createGridCustom(): void {
+    const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+    if (gridEl) {
+      // Dashboard layout with header, sidebar, main content, footer
+      // Uses async rail segments (sidebar rail doesn't span full height)
+      (gridEl as any).loadConfig(createDashboardGrid());
+    }
+    this.selectedGridConfigName.set('');
+  }
+
+  saveCurrentGridConfig(): void {
+    const name = this.gridConfigNameInput().trim();
+    if (!name) return;
+
+    const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+    if (!gridEl) return;
+
+    const config = (gridEl as any).getConfig() as GridConfig;
+    const configs = this.savedGridConfigs();
+
+    const existingIndex = configs.findIndex(c => c.name === name);
+    if (existingIndex >= 0) {
+      configs[existingIndex] = { name, config };
+    } else {
+      configs.push({ name, config });
+    }
+
+    this.savedGridConfigs.set([...configs]);
+    this.persistGridConfigs();
+    this.gridConfigNameInput.set('');
+  }
+
+  loadGridConfig(name: string): void {
+    const configs = this.savedGridConfigs();
+    const saved = configs.find(c => c.name === name);
+    if (saved) {
+      const gridEl = this.gridContainer()?.nativeElement?.querySelector('resizable-grid');
+      if (gridEl) {
+        (gridEl as any).loadConfig(saved.config);
+      }
+      this.selectedGridConfigName.set(name);
+    }
+  }
+
+  deleteGridConfig(name: string): void {
+    const configs = this.savedGridConfigs().filter(c => c.name !== name);
+    this.savedGridConfigs.set(configs);
+    this.persistGridConfigs();
+    if (this.selectedGridConfigName() === name) {
+      this.selectedGridConfigName.set('');
+    }
+  }
+
+  private loadSavedGridConfigs(): void {
+    try {
+      const saved = localStorage.getItem('resizable-demo-grid-configs');
+      if (saved) {
+        this.savedGridConfigs.set(JSON.parse(saved));
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  private persistGridConfigs(): void {
+    try {
+      localStorage.setItem('resizable-demo-grid-configs', JSON.stringify(this.savedGridConfigs()));
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  onCellSplit(event: CustomEvent): void {
+    console.log('Cell split:', event.detail);
+  }
+
+  onCellRemoved(event: CustomEvent): void {
+    console.log('Cell removed:', event.detail);
   }
 }

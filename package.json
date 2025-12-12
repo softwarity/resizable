@@ -1,39 +1,39 @@
 {
-  "name": "@softwarity/row-actions",
-  "version": "3.0.4",
+  "name": "@softwarity/resizable",
+  "version": "4.0.0",
   "author": "Softwarity",
   "license": "MIT",
-  "description": "Angular Material table row actions component with collapsible toolbar",
+  "description": "Native Web Components for creating resizable panel layouts with glued handles at intersections",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/softwarity/row-actions.git"
+    "url": "git+https://github.com/softwarity/resizable.git"
   },
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
+    "resizable",
+    "split",
+    "panels",
+    "layout",
+    "web-components",
+    "custom-elements",
     "angular",
-    "material",
-    "table",
-    "row-actions",
-    "component"
+    "react",
+    "vue",
+    "vanilla"
   ],
   "scripts": {
     "ng": "ng",
-    "build": "ng build row-actions",
+    "build": "ng build resizable",
     "build:demo": "ng build demo",
     "start:demo": "ng serve demo",
-    "cp:archway-ui": "cp -r dist/* ../../softwarity/archway/archway-ui/node_modules/@softwarity/row-actions/",
-    "watch": "ng build row-actions --watch --configuration development",
+    "cp:archway-ui": "cp -r dist/* ../../softwarity/archway/archway-ui/node_modules/@softwarity/resizable/",
+    "watch": "ng build resizable --watch --configuration development",
     "test": "cross-env CHROME_BIN='/usr/bin/google-chrome' ng test",
     "test:ci": "ng test --no-watch --browsers=ChromeHeadless"
   },
-  "peerDependencies": {
-    "@angular/common": ">=21.0.0",
-    "@angular/core": ">=21.0.0",
-    "@angular/cdk": ">=21.0.0",
-    "@angular/material": ">=21.0.0"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "tslib": "^2.6.2"
   },
@@ -51,7 +51,7 @@
     "@angular/platform-browser": "^21.0.3",
     "@angular/platform-browser-dynamic": "^21.0.3",
     "@angular/router": "^21.0.3",
-    "@softwarity/row-actions": "file:dist",
+    "@softwarity/resizable": "file:dist",
     "@types/jasmine": "~4.6.0",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.2",
@@ -63,5 +63,7 @@
     "rxjs": "~7.8.1",
     "typescript": "~5.9.3"
   },
-  "sideEffects": false
+  "sideEffects": [
+    "./**/fesm2022/*.mjs"
+  ]
 }

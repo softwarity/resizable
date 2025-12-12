@@ -4,219 +4,184 @@
   </a>
 </p>
 
-# @softwarity/row-actions
+# @softwarity/resizable
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@softwarity/row-actions">
-    <img src="https://img.shields.io/npm/v/@softwarity/row-actions?color=blue&label=npm" alt="npm version">
+  <a href="https://www.npmjs.com/package/@softwarity/resizable">
+    <img src="https://img.shields.io/npm/v/@softwarity/resizable?color=blue&label=npm" alt="npm version">
   </a>
-  <a href="https://github.com/softwarity/row-actions/blob/main/LICENSE">
+  <a href="https://github.com/softwarity/resizable/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue" alt="license">
   </a>
-  <a href="https://github.com/softwarity/row-actions/actions/workflows/main.yml">
-    <img src="https://github.com/softwarity/row-actions/actions/workflows/main.yml/badge.svg" alt="build status">
+  <a href="https://github.com/softwarity/resizable/actions/workflows/main.yml">
+    <img src="https://github.com/softwarity/resizable/actions/workflows/main.yml/badge.svg" alt="build status">
   </a>
 </p>
 
-An Angular component that displays a collapsible action toolbar when hovering over a `mat-table` row. The buttons appear with a smooth animation from the edge of the cell.
+Native Web Components for creating resizable panel layouts. Works with any framework (Angular, React, Vue) or vanilla JavaScript.
 
-**[Live Demo](https://softwarity.github.io/row-actions/)** | **[Release Notes](RELEASE_NOTES.md)**
-
-<p align="center">
-  <a href="https://softwarity.github.io/row-actions/">
-    <img src="projects/demo/src/assets/preview.png" alt="Row Actions Preview" width="800">
-  </a>
-</p>
+**[Live Demo](https://softwarity.github.io/resizable/)** | **[Release Notes](RELEASE_NOTES.md)**
 
 ## Features
 
-- **Collapsible Toolbar** - Action buttons appear on row hover with smooth animation
-- **Flexible Positioning** - Toolbar can appear from left or right depending on placement
-- **Material 3 Ready** - Uses M3 design tokens for theming (`--mat-sys-primary`, etc.)
-- **Standalone Component** - Easy to import in any Angular 17+ application
-- **Lightweight** - No additional dependencies beyond Angular Material
+- **Native Web Components** - No framework dependencies, works everywhere
+- **Nested Layouts** - Create complex layouts with horizontal and vertical splits
+- **Glued Handles** - Handles at intersections move together automatically
+- **Ctrl+Drag** - Hold Ctrl to resize independently without affecting glued handles
+- **iFrame Support** - Overlay prevents losing mouse events when dragging over iframes
+- **Dark Mode** - Uses CSS `light-dark()` for automatic theme adaptation
+- **Save/Load** - Persist and restore layout configurations
+- **Touch Support** - Full support for mobile devices
 
 ## Installation
 
 ```bash
-npm install @softwarity/row-actions
+npm install @softwarity/resizable
 ```
 
-### Peer Dependencies
+**No peer dependencies required!** This library uses native Web Components.
 
-| Package | Version |
-|---------|---------|
-| @angular/common | >= 21.0.0 |
-| @angular/core | >= 21.0.0 |
-| @angular/cdk | >= 21.0.0 |
-| @angular/material | >= 21.0.0 |
+## Basic Usage
 
-## Usage
+```html
+<script type="module">
+  import '@softwarity/resizable';
+</script>
 
-Import the directive in your component:
+<resizable-split direction="horizontal" style="height: 400px;">
+  <resizable-panel flex="1">Left Panel</resizable-panel>
+  <resizable-panel flex="2">Right Panel</resizable-panel>
+</resizable-split>
+```
+
+## Nested Layouts
+
+Create complex layouts by nesting splits:
+
+```html
+<resizable-split direction="vertical" style="height: 600px;">
+  <resizable-panel flex="1">
+    <resizable-split direction="horizontal">
+      <resizable-panel flex="1">Panel A</resizable-panel>
+      <resizable-panel flex="1">Panel B</resizable-panel>
+      <resizable-panel flex="1">Panel C</resizable-panel>
+    </resizable-split>
+  </resizable-panel>
+  <resizable-panel flex="1">
+    <resizable-split direction="horizontal">
+      <resizable-panel flex="1">Panel D</resizable-panel>
+      <resizable-panel flex="1">Panel E</resizable-panel>
+      <resizable-panel flex="1">Panel F</resizable-panel>
+    </resizable-split>
+  </resizable-panel>
+</resizable-split>
+```
+
+When panels are aligned (like A-D, B-E, C-F above), their handles will **glue together** and move in sync!
+
+## Angular Integration
 
 ```typescript
-import { RowActionsDirective } from '@softwarity/row-actions';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import '@softwarity/resizable';
 
 @Component({
-  selector: 'app-my-component',
-  imports: [RowActionsDirective],
-  template: `...`
+  selector: 'my-component',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <resizable-split direction="horizontal" style="height: 400px;">
+      <resizable-panel flex="1">Left</resizable-panel>
+      <resizable-panel flex="2">Right</resizable-panel>
+    </resizable-split>
+  `
 })
 export class MyComponent {}
 ```
 
-Add the `rowActions` directive inside a `mat-cell`:
+## API Reference
 
-```html
-<mat-table [dataSource]="dataSource">
-  <!-- Other columns... -->
+### `<resizable-split>`
 
-  <ng-container matColumnDef="actions">
-    <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-    <mat-cell *matCellDef="let element">
-      {{ element.lastUpdated }}
-      <span rowActions>
-        <button matIconButton (click)="edit(element)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button matIconButton (click)="delete(element)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </span>
-    </mat-cell>
-  </ng-container>
+Container for resizable panels.
 
-  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
-```
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | Direction of the split |
+| `min-panel-size` | `number` | `50` | Minimum panel size in pixels |
 
-### Variants
+**Events:**
+| Event | Detail | Description |
+|-------|--------|-------------|
+| `config-change` | `SplitConfig` | Fired when layout changes |
 
-The directive supports 3 visual variants:
+### `<resizable-panel>`
 
-```html
-<!-- Default variant (surface-container) -->
-<span rowActions>...</span>
+A resizable panel within a split container.
 
-<!-- Filled variant (primary-container) -->
-<span rowActions="filled">...</span>
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `flex` | `number` | `1` | Initial flex ratio |
+| `min` | `string` | - | Minimum size (e.g., "100px", "20%") |
+| `max` | `string` | - | Maximum size (e.g., "500px", "80%") |
+| `panel-id` | `string` | auto-generated | Unique ID for save/load |
 
-<!-- Tonal variant (secondary-container) -->
-<span rowActions="tonal">...</span>
-```
+**Events:**
+| Event | Detail | Description |
+|-------|--------|-------------|
+| `size-change` | `{ size: number, panelId: string }` | Fired when panel is resized |
 
-## API
+## Save/Load Configuration
 
-### Inputs
+```typescript
+import { ResizableLayoutRegistry } from '@softwarity/resizable';
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `disabled` | `boolean` | `false` | Disables the component (hides it completely) |
+// Save current layout
+const config = ResizableLayoutRegistry.getLayoutConfig();
+localStorage.setItem('my-layout', JSON.stringify(config));
 
-### Position Behavior
-
-The toolbar automatically detects its position within the cell and animates accordingly:
-- **First child** in cell → Toolbar appears from the **left**
-- **Last child** in cell → Toolbar appears from the **right**
-
-You can place `<span rowActions>` in **any cell** of your table, not just a dedicated "actions" column. This allows you to add contextual actions to specific data columns.
-
-## Theming (Material 3)
-
-The component provides a SCSS mixin to customize the toolbar colors. This approach follows Angular Material's theming pattern.
-
-### Setup
-
-In your application's `styles.scss`, import the theme file and call the `overrides` mixin:
-
-```scss
-@use '@angular/material' as mat;
-@use '@softwarity/row-actions/row-actions-theme' as row-actions;
-
-// Your Material 3 theme
-html {
-  @include mat.theme((
-    color: (
-      primary: mat.$violet-palette,
-      tertiary: mat.$yellow-palette
-    ),
-    typography: Roboto,
-    density: 0
-  ));
+// Restore layout
+const saved = localStorage.getItem('my-layout');
+if (saved) {
+  ResizableLayoutRegistry.applyLayoutConfig(JSON.parse(saved));
 }
 
-// Optional: customize row actions colors
-// @include row-actions.overrides();
+// Reset to initial state
+ResizableLayoutRegistry.resetLayout();
 ```
 
-### Customization
+## Theming
 
-The `overrides` mixin accepts a map of tokens to customize the toolbar appearance for each variant:
+The component uses CSS custom properties with `light-dark()` for theme support:
 
-| Token | Default | Description |
-|-------|---------|-------------|
-| `container-background-color` | `var(--mat-sys-surface-container)` | Background for default variant |
-| `filled-background-color` | `var(--mat-sys-primary-container)` | Background for filled variant |
-| `tonal-background-color` | `var(--mat-sys-secondary-container)` | Background for tonal variant |
-
-### Examples
-
-```scss
-// Customize all variants with light/dark support
-@include row-actions.overrides((
-  container-background-color: light-dark(#e8def8, #4a4458),
-  filled-background-color: light-dark(#d0bcff, #381e72),
-  tonal-background-color: light-dark(#e8def8, #4a4458)
-));
-
-// Use Material 3 system colors
-@include row-actions.overrides((
-  container-background-color: var(--mat-sys-tertiary-container)
-));
-
-// Custom color for default variant only
-@include row-actions.overrides((
-  container-background-color: #1976d2
-));
+```css
+resizable-handle {
+  --handle-color: light-dark(#cccccc, #555555);
+  --handle-hover-color: light-dark(#888888, #888888);
+  --handle-active-color: light-dark(#666666, #aaaaaa);
+  --handle-glued-color: light-dark(#4a90d9, #5ba0e9);
+}
 ```
 
-To customize the icon buttons, use Angular Material's `matIconButton` overrides directly.
+### Framework Dark Mode Integration
 
-## Examples
-
-### Basic Usage (Right-aligned)
-
-```html
-<mat-cell *matCellDef="let element">
-  {{ element.name }}
-  <span rowActions>
-    <button matIconButton><mat-icon>edit</mat-icon></button>
-    <button matIconButton><mat-icon>delete</mat-icon></button>
-  </span>
-</mat-cell>
+For **Tailwind CSS**:
+```css
+html.dark { color-scheme: dark; }
+html:not(.dark) { color-scheme: light; }
 ```
 
-### Left-aligned Toolbar
-
-```html
-<mat-cell *matCellDef="let element">
-  <span rowActions>
-    <button matIconButton><mat-icon>edit</mat-icon></button>
-    <button matIconButton><mat-icon>delete</mat-icon></button>
-  </span>
-  {{ element.name }}
-</mat-cell>
+For **Bootstrap 5.3+**:
+```css
+[data-bs-theme="dark"] { color-scheme: dark; }
+[data-bs-theme="light"] { color-scheme: light; }
 ```
 
-### Conditionally Disabled
+## Browser Support
 
-```html
-<span rowActions [disabled]="!hasPermission">
-  <button matIconButton><mat-icon>edit</mat-icon></button>
-</span>
-```
+Works in all modern browsers that support:
+- Custom Elements v1
+- Shadow DOM v1
+- CSS `light-dark()` (Chrome 123+, Firefox 120+, Safari 17.5+)
 
 ## License
 

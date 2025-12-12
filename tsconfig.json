@@ -18,8 +18,8 @@
     "importHelpers": true,
     "target": "ES2022",
     "paths": {
-      "@softwarity/row-actions": [
-        "dist"
+      "@softwarity/resizable": [
+        "src/public-api.ts"
       ]
     },
     "module": "ES2022",

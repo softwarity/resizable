@@ -1,150 +1,212 @@
-:host {
-  background: transparent;
-}
-
 .playground {
-  margin-bottom: 32px;
+  padding: 24px;
 }
 
-.table-preview-wrapper {
-  margin: 1rem 0;
+h2 {
+  margin-bottom: 24px;
+}
 
-  .table-placeholder {
-    height: calc(var(--row-height, 52px) * 8 + 56px); // 8 rows + header
-    background: var(--mat-sys-surface-container);
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.save-config {
+  input {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    width: 150px;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
   }
 }
 
-// Fake PrismJS interactive code block
-.fake-prism {
-  position: relative;
+.saved-configs {
+  flex-wrap: wrap;
 
-  // HTML fragment with toggle button in top-right corner
-  &.html-fragment {
-    .color-scheme-toggle,
-    .table-syntax-toggle {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-      padding: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ccc;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-  }
-
-  // Override lines with checkbox and color pickers
-  .override-line {
-    display: flex;
-    align-items: center;
-    padding-left: 16px;
-
-    input[type="checkbox"] {
-      margin-right: 4px;
-      cursor: pointer;
-      accent-color: var(--accent-purple);
-    }
-
-    // When disabled (commented out), gray out the whole line
-    &.disabled {
-      .token, .inline-color .token, select {
-        color: #999 !important; // Same as comment color
-      }
-      .color-preview {
-        opacity: 0.5;
-      }
-    }
-  }
-
-  // Inline color picker
-  .inline-color {
-    display: inline-flex;
-    align-items: center;
+  button {
     position: relative;
-    cursor: pointer;
-    margin: 0 2px;
+    padding-right: 32px;
 
-    input[type="color"] {
+    &.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .delete-icon {
       position: absolute;
+      right: 4px;
+      font-size: 16px;
       width: 16px;
       height: 16px;
-      opacity: 0;
-      cursor: pointer;
-    }
+      opacity: 0.6;
+      transition: opacity 0.2s;
 
-    .color-preview {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      vertical-align: middle;
+      &:hover {
+        opacity: 1;
+      }
     }
   }
+}
 
-  // Inline palette select (native select) - green like strings
-  .inline-palette-select {
-    display: inline;
-    font-family: 'Courier New', Consolas, monospace;
-    font-size: inherit;
-    color: #7ec699; // Same as .token.string
-    background: transparent;
+.instructions {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(88, 166, 255, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-blue);
+  font-size: 14px;
+
+  p {
+    margin: 4px 0;
+  }
+
+  strong {
+    color: var(--accent-blue);
+  }
+
+  em {
+    color: var(--accent-purple);
+    font-style: normal;
+    font-weight: 500;
+  }
+}
+
+.tab-content {
+  padding: 16px 0;
+}
+
+.preview-container {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  margin-bottom: 24px;
+
+  resizable-split,
+  resizable-grid {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.grid-preview {
+  resizable-grid {
+    display: block;
+  }
+}
+
+.panel-content {
+  height: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  small {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.8;
+  }
+
+  iframe {
+    flex: 1;
+    width: 100%;
     border: none;
-    border-bottom: 1px dashed #7ec699;
-    cursor: pointer;
-    padding: 0;
-
-    option {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-    }
+    border-radius: 4px;
+    margin-top: 8px;
+    background: white;
   }
 
-  // Inline variant select - same green style
-  .inline-variant-select,
-  .inline-height-select {
-    display: inline;
-    font-family: 'Courier New', Consolas, monospace;
-    font-size: inherit;
-    color: #7ec699;
-    background: transparent;
-    border: none;
-    border-bottom: 1px dashed #7ec699;
-    cursor: pointer;
+  &.iframe-panel {
     padding: 0;
+    overflow: hidden;
 
-    option {
-      background: var(--bg-secondary);
-      color: var(--text-primary);
+    iframe {
+      margin: 0;
+      border-radius: 0;
+      height: 100%;
     }
   }
+}
 
-  // Inline boolean (checkbox + true/false text)
-  .inline-bool {
-    cursor: pointer;
+.panel-1 {
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(88, 166, 255, 0.05) 100%);
+}
 
-    input[type="checkbox"] {
-      display: none;
-    }
+.panel-2 {
+  background: linear-gradient(135deg, rgba(163, 113, 247, 0.1) 0%, rgba(163, 113, 247, 0.05) 100%);
+}
 
-    .token.keyword {
-      border-bottom: 1px dashed #cc99cd;
-    }
+.panel-3 {
+  background: linear-gradient(135deg, rgba(35, 134, 54, 0.1) 0%, rgba(35, 134, 54, 0.05) 100%);
+}
+
+.panel-4 {
+  background: linear-gradient(135deg, rgba(248, 81, 73, 0.1) 0%, rgba(248, 81, 73, 0.05) 100%);
+}
+
+.panel-5 {
+  background: linear-gradient(135deg, rgba(255, 199, 0, 0.1) 0%, rgba(255, 199, 0, 0.05) 100%);
+}
+
+.panel-6 {
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%);
+}
+
+.code-example {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+
+  code {
+    color: var(--text-secondary);
+    background: none;
+    padding: 0;
   }
 }
