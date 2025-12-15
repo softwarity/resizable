@@ -203,6 +203,16 @@ export class ResizableGrid extends HTMLElement {
           text-overflow: ellipsis;
           max-width: 90%;
         }
+
+        /* Edge-collapsed rails - semi-transparent by default, fully visible on hover */
+        resizable-rail-handle[edge-collapsed] {
+          opacity: 0.3;
+          transition: opacity 0.15s;
+        }
+
+        resizable-rail-handle[edge-collapsed]:hover {
+          opacity: 1;
+        }
       </style>
 
       <div class="grid-container">
@@ -293,16 +303,36 @@ export class ResizableGrid extends HTMLElement {
     const start = bounds?.start ?? 0;
     const end = bounds?.end ?? 100;
 
+    const edgeTolerance = 1; // 1% tolerance for edge detection
+    const isAtEdge = rail.position <= edgeTolerance || rail.position >= 100 - edgeTolerance;
+    // Keep 8px visible inside when at edge (4px goes outside)
+    const edgeInset = 8;
+
     if (rail.direction === 'vertical') {
       // Vertical rail = vertical line segment = dragged horizontally
       // The segment goes from start% to end% vertically (top to bottom)
+
+      // Adjust position for rails at the edge - mostly outside, just a bit visible
+      let leftStyle: string;
+      if (rail.position <= edgeTolerance) {
+        // At left edge - mostly outside, only edgeInset pixels visible
+        leftStyle = `left: -${RAIL_HANDLE_SIZE - edgeInset}px;`;
+      } else if (rail.position >= 100 - edgeTolerance) {
+        // At right edge - mostly outside, only edgeInset pixels visible
+        leftStyle = `right: -${RAIL_HANDLE_SIZE - edgeInset}px;`;
+      } else {
+        // Normal positioning - centered on rail
+        leftStyle = `left: calc(${rail.position}% - ${RAIL_HANDLE_SIZE / 2}px);`;
+      }
+
       return `
         <resizable-rail-handle
           rail-id="${rail.id}"
           direction="vertical"
+          ${isAtEdge ? 'edge-collapsed' : ''}
           style="
             position: absolute;
-            left: calc(${rail.position}% - ${RAIL_HANDLE_SIZE / 2}px);
+            ${leftStyle}
             top: ${start}%;
             width: ${RAIL_HANDLE_SIZE}px;
             height: ${end - start}%;
@@ -312,14 +342,29 @@ export class ResizableGrid extends HTMLElement {
     } else {
       // Horizontal rail = horizontal line segment = dragged vertically
       // The segment goes from start% to end% horizontally (left to right)
+
+      // Adjust position for rails at the edge - mostly outside, just a bit visible
+      let topStyle: string;
+      if (rail.position <= edgeTolerance) {
+        // At top edge - mostly outside, only edgeInset pixels visible
+        topStyle = `top: -${RAIL_HANDLE_SIZE - edgeInset}px;`;
+      } else if (rail.position >= 100 - edgeTolerance) {
+        // At bottom edge - mostly outside, only edgeInset pixels visible
+        topStyle = `bottom: -${RAIL_HANDLE_SIZE - edgeInset}px;`;
+      } else {
+        // Normal positioning - centered on rail
+        topStyle = `top: calc(${rail.position}% - ${RAIL_HANDLE_SIZE / 2}px);`;
+      }
+
       return `
         <resizable-rail-handle
           rail-id="${rail.id}"
           direction="horizontal"
+          ${isAtEdge ? 'edge-collapsed' : ''}
           style="
             position: absolute;
             left: ${start}%;
-            top: calc(${rail.position}% - ${RAIL_HANDLE_SIZE / 2}px);
+            ${topStyle}
             width: ${end - start}%;
             height: ${RAIL_HANDLE_SIZE}px;
           "

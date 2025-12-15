@@ -613,7 +613,12 @@ export class ResizableRailHandle extends HTMLElement {
       if (lastCtrlPressed && !newCtrlPressed) {
         // IMPORTANT: Recalculate aligned rails based on current position
         // After CTRL+drag, the rail may be at a new position with different neighbors
+        const previousAlignedIds = [...alignedRailIds];
         alignedRailIds = gridService.getAdjacentAlignedRails(railId, 1).map(r => r.id);
+
+        // Check if new rails joined the group - if so, segment perpendicular rails
+        gridService.handleNewAlignment(railId, previousAlignedIds);
+
         fusionDisabledUntilMove = true;
         positionAtCtrlRelease = newPosition;
         clearFusionState();

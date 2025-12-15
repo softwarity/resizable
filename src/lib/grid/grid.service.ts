@@ -790,56 +790,86 @@ export class GridService {
    * At the endpoint, there must be perpendicular rails departing in BOTH directions.
    *
    * The endpoint is defined by the rail's startBound or endBound.
-   * We get the actual position of that bound rail and look for perpendicular rails
-   * that START, END, or PASS THROUGH our rail's position.
+   * We look at the intersection point and check if there are perpendicular rails
+   * going in both directions FROM THAT POINT.
+   *
+   * For a horizontal rail with endpoint at a vertical bound rail:
+   * - The intersection point is at (boundRail.position, rail.position) in (x, y)
+   * - We need vertical rails that go UP (negative Y) and DOWN (positive Y) from that point
+   *
+   * For a vertical rail with endpoint at a horizontal bound rail:
+   * - The intersection point is at (rail.position, boundRail.position) in (x, y)
+   * - We need horizontal rails that go LEFT (negative X) and RIGHT (positive X) from that point
    */
   private canRailMoveAtEndpoint(rail: Rail, endpoint: 'start' | 'end'): boolean {
     const boundRailId = endpoint === 'start' ? rail.startBound : rail.endBound;
 
     // If no bound, we're at a fixed edge (0% or 100%) - OK
-    if (!boundRailId) return true;
+    if (!boundRailId) {
+      return true;
+    }
 
     const boundRail = this.rails.get(boundRailId);
-    if (!boundRail) return true;
+    if (!boundRail) {
+      return true;
+    }
 
     // If bound rail is fixed, it spans the full extent - OK
-    if (boundRail.fixed) return true;
+    if (boundRail.fixed) {
+      return true;
+    }
 
-    // The endpoint is at position boundRail.position on the perpendicular axis
-    // We need perpendicular rails at that position that depart from rail.position
-    const endpointPosition = boundRail.position;  // Where the endpoint is (on perp axis)
-    const ourPosition = rail.position;            // Our position (on our axis)
+    // If our rail is at the edge (0% or 100%), we can always move it
+    // The edge itself acts as a "rail" in one direction
+    const edgeTolerance = 1;
+    if (rail.position <= edgeTolerance || rail.position >= 100 - edgeTolerance) {
+      return true;
+    }
+
+    // The intersection point is where our rail meets the bound rail.
+    // We need to check if there are perpendicular rails (same direction as boundRail)
+    // going in BOTH directions from this intersection.
+    //
+    // For a HORIZONTAL rail checking at endpoint bounded by a VERTICAL rail:
+    // - boundRail is vertical, boundRail.position is X coordinate
+    // - rail.position is Y coordinate
+    // - We look for VERTICAL rails at X = boundRail.position
+    // - We check if they go UP (start < Y) and DOWN (end > Y) from Y = rail.position
+    //
+    // For a VERTICAL rail checking at endpoint bounded by a HORIZONTAL rail:
+    // - boundRail is horizontal, boundRail.position is Y coordinate
+    // - rail.position is X coordinate
+    // - We look for HORIZONTAL rails at Y = boundRail.position
+    // - We check if they go LEFT (start < X) and RIGHT (end > X) from X = rail.position
+
+    const intersectionOnBoundAxis = boundRail.position;  // X for vertical bound, Y for horizontal bound
+    const intersectionOnOurAxis = rail.position;         // Y for horizontal rail, X for vertical rail
     const tolerance = 0.5;
 
     let hasRailGoingNegative = false;
     let hasRailGoingPositive = false;
 
+    // Look for perpendicular rails at this intersection point
+    // Perpendicular rails have the SAME direction as the bound rail
     this.rails.forEach(r => {
-      // Must be same direction as boundRail (perpendicular to our rail)
       if (r.direction !== boundRail.direction) return;
 
-      // Must be at the same perpendicular position as the endpoint
-      if (Math.abs(r.position - endpointPosition) > tolerance) return;
+      // Check if this rail is at the intersection X (for vertical) or Y (for horizontal)
+      if (Math.abs(r.position - intersectionOnBoundAxis) > tolerance) return;
 
-      // Get bounds of this perpendicular rail
+      // Now check if this perpendicular rail's segment includes our position
       const rBounds = this.getRailBounds(r.id);
       if (!rBounds) return;
 
-      // Check if this rail starts, ends, or passes through our position
-      const startsAtOurPosition = Math.abs(rBounds.start - ourPosition) <= tolerance;
-      const endsAtOurPosition = Math.abs(rBounds.end - ourPosition) <= tolerance;
-      const passesThroughOurPosition = rBounds.start < ourPosition - tolerance && rBounds.end > ourPosition + tolerance;
+      // rBounds.start and rBounds.end are on the same axis as our rail's position
+      const startsAtIntersection = Math.abs(rBounds.start - intersectionOnOurAxis) <= tolerance;
+      const endsAtIntersection = Math.abs(rBounds.end - intersectionOnOurAxis) <= tolerance;
+      const passesThroughIntersection = rBounds.start < intersectionOnOurAxis - tolerance &&
+                                         rBounds.end > intersectionOnOurAxis + tolerance;
 
-      if (startsAtOurPosition) {
-        // Rail starts at our position -> goes in positive direction
-        hasRailGoingPositive = true;
-      }
-      if (endsAtOurPosition) {
-        // Rail ends at our position -> goes in negative direction
-        hasRailGoingNegative = true;
-      }
-      if (passesThroughOurPosition) {
-        // Rail passes through our position -> goes in BOTH directions
+      if (startsAtIntersection) hasRailGoingPositive = true;
+      if (endsAtIntersection) hasRailGoingNegative = true;
+      if (passesThroughIntersection) {
         hasRailGoingNegative = true;
         hasRailGoingPositive = true;
       }
@@ -987,18 +1017,201 @@ export class GridService {
     const sourceRail = this.rails.get(sourceRailId);
     const targetRail = this.rails.get(targetRailId);
 
+    console.log(`[fuseRails] source=${sourceRailId}, target=${targetRailId}`);
+
     if (!sourceRail || !targetRail) return false;
     if (sourceRail.direction !== targetRail.direction) return false;
     if (sourceRail.fixed) return false;
 
-    // Move source to target's position
-    if (sourceRail.position !== targetRail.position) {
+    // Move source to target's position (if needed)
+    const positionChanged = sourceRail.position !== targetRail.position;
+    if (positionChanged) {
       sourceRail.position = targetRail.position;
-      this.notifyListeners();
-      return true;
     }
-    return false;
+
+    console.log(`[fuseRails] calling segmentPerpendicularRailsAtAlignment for ${sourceRailId}`);
+
+    // After fusion (even if positions were already aligned), segment perpendicular rails
+    // at the intersection point. This is needed because rails may have been moved to the
+    // same position before calling fuseRails.
+    this.segmentPerpendicularRailsAtAlignment(sourceRailId);
+
+    this.notifyListeners();
+    return true;
   }
+
+  /**
+   * Called when a rail becomes aligned with other rails (e.g., after CTRL+drag release).
+   * This triggers segmentation of perpendicular rails at the alignment point.
+   *
+   * @param railId The rail that just became aligned
+   * @param previousAlignedIds The IDs of rails that were in the aligned group before the change
+   */
+  handleNewAlignment(railId: string, previousAlignedIds: string[]): void {
+    const currentAligned = this.getAdjacentAlignedRails(railId, 1);
+    const currentAlignedIds = currentAligned.map(r => r.id);
+
+    // Check if there are any NEW rails in the aligned group
+    const newRails = currentAlignedIds.filter(id => !previousAlignedIds.includes(id));
+
+    console.log(`[handleNewAlignment] rail=${railId}, previous=[${previousAlignedIds.join(', ')}], current=[${currentAlignedIds.join(', ')}], new=[${newRails.join(', ')}]`);
+
+    if (newRails.length > 0) {
+      // New alignment detected - segment perpendicular rails
+      console.log(`[handleNewAlignment] New rails joined the group, segmenting perpendicular rails`);
+      this.segmentPerpendicularRailsAtAlignment(railId);
+      this.notifyListeners();
+    }
+  }
+
+  /**
+   * Segment perpendicular rails at the position where aligned rails meet.
+   *
+   * When two rails become aligned (same position, adjacent segments), any perpendicular
+   * rail that spans across the alignment position should be segmented to allow
+   * independent movement of each segment.
+   *
+   * Example: If v-sidebar (15%-85%) and v-new (85%-100%) are aligned at X=25%,
+   * and h-footer spans X=0%-100% at position Y=85%, then h-footer should be split at X=25% into:
+   * - h-footer-left: X=0%-25%
+   * - h-footer-right: X=25%-100%
+   */
+  private segmentPerpendicularRailsAtAlignment(railId: string): void {
+    const rail = this.rails.get(railId);
+    if (!rail) {
+      console.log(`[segmentPerpendicular] rail ${railId} not found`);
+      return;
+    }
+
+    // Get all rails in the aligned group
+    const alignedRails = this.getAdjacentAlignedRails(railId, 1);
+    console.log(`[segmentPerpendicular] rail=${railId}, alignedRails=[${alignedRails.map(r => r.id).join(', ')}]`);
+    if (alignedRails.length < 2) {
+      console.log(`[segmentPerpendicular] only ${alignedRails.length} aligned rails, skipping`);
+      return; // No alignment, nothing to segment
+    }
+
+    const tolerance = 0.5;
+    const alignPosition = rail.position; // X position for vertical rails, Y for horizontal
+    const isVertical = rail.direction === 'vertical';
+
+    // Find perpendicular rails that span across the alignment position
+    // For vertical rails at X, we segment horizontal rails at X (if they span across X)
+    // For horizontal rails at Y, we segment vertical rails at Y (if they span across Y)
+    const perpendicularDirection = isVertical ? 'horizontal' : 'vertical';
+
+    console.log(`[segmentPerpendicular] alignPosition=${alignPosition}, looking for ${perpendicularDirection} rails`);
+
+    // For each perpendicular rail, check if it spans across the alignment position
+    for (const perpRail of this.rails.values()) {
+      if (perpRail.direction !== perpendicularDirection) continue;
+      if (perpRail.fixed) continue;
+
+      // Get perpendicular rail's bounds on the alignment axis
+      // For horizontal rails, bounds are X values; for vertical rails, bounds are Y values
+      const perpBounds = this.getRailBounds(perpRail.id);
+      if (!perpBounds) continue;
+
+      console.log(`[segmentPerpendicular] checking ${perpRail.id} at pos=${perpRail.position}, bounds=[${perpBounds.start}-${perpBounds.end}]`);
+
+      // Check if this perpendicular rail spans across the alignment position
+      // e.g., for h-footer with X bounds [0, 100], check if alignPosition=25 is within
+      if (alignPosition <= perpBounds.start + tolerance || alignPosition >= perpBounds.end - tolerance) {
+        // Rail doesn't span across the alignment position (or barely touches it)
+        console.log(`[segmentPerpendicular] ${perpRail.id} does NOT span across ${alignPosition}, skipping`);
+        continue;
+      }
+
+      console.log(`[segmentPerpendicular] ${perpRail.id} SPANS across ${alignPosition}, will segment!`);
+      console.log(`[segmentPerpendicular] perpRail.position=${perpRail.position}, perpRail.startBound=${perpRail.startBound}, perpRail.endBound=${perpRail.endBound}`);
+
+      // The perpendicular rail spans across the alignment position - segment it there
+      // Find the correct aligned rail segments to use as bounds:
+      // - For the original segment (ending at the split): find aligned rail that ENDS at perpRail.position
+      // - For the new segment (starting at the split): find aligned rail that STARTS at perpRail.position
+      //
+      // perpRail.position is the position where the perpendicular rail lives
+      // (e.g., Y=66% for a horizontal rail h-fm at Y=66%)
+      // The aligned rails are at alignPosition (e.g., X=50%)
+      // We need to find which aligned rail segment ENDS at Y=66% (for left segment)
+      // and which STARTS at Y=66% (for right segment)
+
+      // Find the aligned rail segment that contains perpRail.position
+      // This is the rail that will serve as the bound for both new segments
+      let containingAlignedRail: string | undefined;
+
+      for (const alignedRail of alignedRails) {
+        const alignedBounds = this.getRailBounds(alignedRail.id);
+        if (!alignedBounds) continue;
+        console.log(`[segmentPerpendicular] alignedRail ${alignedRail.id} bounds=[${alignedBounds.start}-${alignedBounds.end}], perpRail.position=${perpRail.position}`);
+
+        // Check if this aligned rail's segment contains perpRail.position
+        // (i.e., the perpendicular rail passes through this aligned rail segment)
+        if (alignedBounds.start <= perpRail.position + tolerance &&
+            alignedBounds.end >= perpRail.position - tolerance) {
+          containingAlignedRail = alignedRail.id;
+          console.log(`[segmentPerpendicular] -> containingAlignedRail = ${alignedRail.id} (contains perpRail.position)`);
+          break; // Found the containing rail, no need to continue
+        }
+      }
+
+      // If no containing rail found, use the first aligned rail as fallback
+      if (!containingAlignedRail) {
+        containingAlignedRail = alignedRails[0]?.id;
+        console.log(`[segmentPerpendicular] Using fallback: ${containingAlignedRail}`);
+        if (!containingAlignedRail) continue;
+      }
+
+      // Both segments use the same aligned rail as their bound at the split point
+      const boundForOriginal = containingAlignedRail;
+      const boundForNew = containingAlignedRail;
+      console.log(`[segmentPerpendicular] Using bound: ${containingAlignedRail} for both segments`);
+
+      // Create the new segment
+      const newRailId = generateId(perpRail.direction === 'horizontal' ? 'h-' : 'v-');
+      const newRail: Rail = {
+        id: newRailId,
+        direction: perpRail.direction,
+        position: perpRail.position,
+        fixed: false,
+        startBound: boundForNew,
+        endBound: perpRail.endBound,
+      };
+      this.rails.set(newRailId, newRail);
+      console.log(`[segmentPerpendicular] Created new rail ${newRailId} with startBound=${boundForNew}, endBound=${perpRail.endBound}`);
+
+      // Update original rail to end at the alignment position
+      const oldEndBound = perpRail.endBound;
+      perpRail.endBound = boundForOriginal;
+      console.log(`[segmentPerpendicular] Updated ${perpRail.id} endBound from ${oldEndBound} to ${boundForOriginal}`);
+
+      // Update cells to reference the new rail where appropriate
+      const isHorizontal = perpRail.direction === 'horizontal';
+      this.cells.forEach(cell => {
+        const cellBounds = this.getCellBounds(cell.id);
+        if (!cellBounds) return;
+
+        if (isHorizontal) {
+          // For horizontal rails: check if cell is to the right of alignment position
+          if (cell.topRail === perpRail.id && cellBounds.left >= alignPosition - tolerance) {
+            cell.topRail = newRailId;
+          }
+          if (cell.bottomRail === perpRail.id && cellBounds.left >= alignPosition - tolerance) {
+            cell.bottomRail = newRailId;
+          }
+        } else {
+          // For vertical rails: check if cell is below alignment position
+          if (cell.leftRail === perpRail.id && cellBounds.top >= alignPosition - tolerance) {
+            cell.leftRail = newRailId;
+          }
+          if (cell.rightRail === perpRail.id && cellBounds.top >= alignPosition - tolerance) {
+            cell.rightRail = newRailId;
+          }
+        }
+      });
+    }
+  }
+
 }
 
 // Singleton instance for global access
