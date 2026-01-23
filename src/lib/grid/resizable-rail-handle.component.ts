@@ -17,8 +17,8 @@ let instanceCounter = 0;
 
 // Fusion zone constants
 const FUSION_ZONE_OUTER = 5; // 5% = outer zone (slow blink, "approaching")
-const FUSION_ZONE_MIDDLE = 2.5; // 2.5% = middle zone (medium blink, "slowing")
-const FUSION_ZONE_INNER = 1; // 1% = inner zone (fast blink, "imminent")
+const FUSION_ZONE_MIDDLE = 3; // 3% = middle zone (medium blink, "slowing")
+const FUSION_ZONE_INNER = 1.5; // 1.5% = inner zone (fast blink, snap zone)
 const FUSION_DWELL_TIME_MS = 400; // Time to stay in inner zone before fusion
 
 // DEBUG: Check for orphan overlays
@@ -159,7 +159,6 @@ export class ResizableRailHandle extends HTMLElement {
         :host {
           display: block;
           cursor: ${cursor};
-          z-index: 100;
         }
 
         /* Disabled state - rail cannot be moved */
@@ -176,11 +175,9 @@ export class ResizableRailHandle extends HTMLElement {
           display: none !important;
         }
 
-        /* When grip is shown, this rail should be above others */
-        :host([show-grip]),
-        :host([highlighted="solo"]),
+        /* Only dragging rail goes on top - others stay at same level */
         :host([dragging]) {
-          z-index: 101;
+          z-index: 1000;
         }
 
         .handle {
@@ -189,15 +186,17 @@ export class ResizableRailHandle extends HTMLElement {
           background: transparent;
           transition: background-color 0.15s;
           position: relative;
+          z-index: 10; /* Create stacking context so z-index works for children */
         }
 
         /* Center line - always visible but subtle */
+        /* z-index: -1 ensures the line is always behind grips of other rails */
         .handle::before {
           content: '';
           position: absolute;
           background: var(--rail-color, light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15)));
           transition: background-color 0.15s, opacity 0.15s, width 0.15s, height 0.15s;
-          z-index: 1;
+          z-index: -1;
         }
 
         :host([direction="vertical"]) .handle::before {
@@ -550,8 +549,9 @@ export class ResizableRailHandle extends HTMLElement {
     let lastPosition = 0;
     let stoppedInInnerZone = false;
     let stoppedStartTime: number | null = null;
-    const STOPPED_THRESHOLD_MS = 100; // Consider "stopped" if no movement for 100ms
-    const FUSION_AFTER_STOP_MS = 300; // Fuse after being stopped for 300ms
+    const STOPPED_THRESHOLD_MS = 150; // Consider "stopped" if no significant movement for 150ms
+    const FUSION_AFTER_STOP_MS = 200; // Snap after being stopped for 200ms (faster!)
+    const MOVEMENT_THRESHOLD = 0.3; // 0.3% movement threshold (less sensitive to micro-movements)
 
     const clearFusionState = () => {
       if (fusionDwellTimer) {
@@ -628,8 +628,8 @@ export class ResizableRailHandle extends HTMLElement {
 
       const now = performance.now();
 
-      // Track if user is moving or stopped
-      const positionChanged = Math.abs(newPosition - lastPosition) > 0.1;
+      // Track if user is moving or stopped (use MOVEMENT_THRESHOLD to ignore micro-movements)
+      const positionChanged = Math.abs(newPosition - lastPosition) > MOVEMENT_THRESHOLD;
       if (positionChanged) {
         lastMoveTime = now;
         lastPosition = newPosition;
@@ -699,28 +699,27 @@ export class ResizableRailHandle extends HTMLElement {
                 stoppedInInnerZone = true;
                 stoppedStartTime = now;
               } else if (stoppedStartTime && (now - stoppedStartTime) >= FUSION_AFTER_STOP_MS) {
-                // User has been stopped in inner zone long enough - FUSION!
+                // User has been stopped in inner zone long enough - SNAP & FUSE!
                 fusionReadyToTrigger = true;
                 setFusionStage('fusing', fusionCandidateId!);
 
-                // Capture the candidate ID now (before the timeout)
+                // Capture the candidate ID now
                 const candidateToFuseWith = fusionCandidateId;
+                const targetRail = gridService.getRail(candidateToFuseWith!);
 
-                // Small delay for flash animation, then fuse
-                setTimeout(() => {
-                  if (candidateToFuseWith && gridService && fusionReadyToTrigger) {
-                    // Re-verify the candidate is still valid and close enough
-                    const currentCandidates = gridService.getFusionCandidates(railId, FUSION_ZONE_INNER * 2);
-                    const stillValid = currentCandidates.some(c => c.rail.id === candidateToFuseWith);
+                if (targetRail && candidateToFuseWith) {
+                  // SNAP: Move our rail(s) to the exact target position immediately
+                  const targetPosition = targetRail.position;
+                  gridService.moveRails(alignedRailIds, targetPosition, containerSize, ownerInstance._minCellSize);
 
-                    if (stillValid) {
-                      gridService.fuseRails(railId, candidateToFuseWith);
-                      // Update aligned rails to include the newly fused rail
-                      alignedRailIds = gridService.getAdjacentAlignedRails(railId, 1).map(r => r.id);
-                    }
-                  }
-                  clearFusionState();
-                }, 150);
+                  // Now fuse (this triggers segmentation of perpendicular rails)
+                  gridService.fuseRails(railId, candidateToFuseWith);
+
+                  // Update aligned rails to include the newly fused rail
+                  alignedRailIds = gridService.getAdjacentAlignedRails(railId, 1).map(r => r.id);
+                }
+
+                clearFusionState();
               } else {
                 // Stopped but waiting for fusion timer
                 setFusionStage('imminent', fusionCandidateId!);

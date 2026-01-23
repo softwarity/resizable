@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -6,8 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-root',
   imports: [
     RouterOutlet,
-    MatIconModule,
+    MatIconModule
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],  
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
