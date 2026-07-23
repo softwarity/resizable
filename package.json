@@ -2,7 +2,7 @@
   "name": "@softwarity/resizable",
   "version": "4.0.0",
   "author": "Softwarity",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "description": "Native Web Components for creating resizable panel layouts with glued handles at intersections",
   "repository": {
     "type": "git",
